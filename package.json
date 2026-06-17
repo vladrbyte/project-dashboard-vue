@@ -6,10 +6,11 @@
   "scripts": {
     "vite": "vite",
     "server": "node server/server.js",
+    "python-setup": "python3 -m venv .venv || python -m venv .venv && (.venv/Scripts/pip install edge-tts || .venv/bin/pip install edge-tts)",
+    "predev": "node init-assets.js",
     "dev": "concurrently \"npm run vite\" \"npm run server\"",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview",
-    "python-setup": "python3 -m venv .venv || python -m venv .venv && (.venv/Scripts/pip install edge-tts || .venv/bin/pip install edge-tts)"
+    "preview": "vite preview"
   },
   "dependencies": {
     "cors": "^2.8.6",
