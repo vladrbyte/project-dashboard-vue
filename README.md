@@ -24,9 +24,11 @@ Open your terminal in the root directory of the project and fetch the required n
 npm install
 ```
 
-### Step 2: Set Up Python Virtual Environment
+### Step 2: Set Up Python Virtual Environment (Optional)
 
-The project automatically initializes assets using Python scripts. Run the following commands depending on your operating system to build the virtual environment (`.venv`) and install the required speech-synthesis libraries.
+> 💡 **Note:** If you have just cloned the project and the audio assets along with mock files are already present in the repository, you can safely skip **Step 2** and **Step 3**, and go straight to **Step 4**.
+
+If you need to generate or regenerate speech assets locally, build the virtual environment (`.venv`) and install the required speech-synthesis libraries depending on your operating system:
 
 #### On macOS / Linux:
 ```bash
@@ -44,20 +46,28 @@ pip install edge-tts
 deactivate
 ```
 
-### Step 3: Run the Local Environment
+### Step 3: Initialize Speech Assets (Only if assets are missing)
+
+If you don't have the `.mp3` audio tracks in your `public/audio/` folder or missing mocks, run the isolated asset pipeline command:
+
+```bash
+npm run setup
+```
+This command will dynamically invoke the Python automation layer inside your `.venv` to synthesize audio files and configure TypeScript data structures.
+
+### Step 4: Run the Local Environment
 
 Start both the frontend server (Vite) and the backend CRUD API simultaneously with a single command:
 
 ```bash
 npm run dev
 ```
-
-> **Note:** On your first launch, the backend will automatically detect if audio tracks or TypeScript mocks are missing. It will invoke the Python automation layer inside your `.venv` to generate all needed `.mp3` assets and configure data structures before starting up the server.
+The project will boot up instantly without any background file checks, ensuring a fast and lightweight local workflow.
 
 ---
 
 ## 🛠️ Project Architecture Quick View
 
-- **`src/`** — Core Vue 3 single-file components (`AudioCell.vue`, `DashboardRow.vue`, etc.) along with custom dashboard styling and reactive setups.
-- **`server/`** — Express.js REST API providing synchronization overrides, containing the local database storage (`sessions-db.json`).
-- **Automation Scripts** — `generate_audio_and_mocks.py` and `maintain_assets.py` handling dynamic conversational edge-tts synthesis.
+- **`src/`** — Core Vue 3 single-file components (`AudioCell.vue`, `DashboardRow.vue`, etc.) along with global state composables and reactive setups.
+- **`server/`** — Express.js REST API providing synchronization overrides, containing the local database storage (`sessions-db.json`) and project bootstrap configuration.
+- **`dev_scripts/`** — Python automation suite containing `generate_audio_and_mocks.py` and `maintain_assets.py` handling dynamic conversational edge-tts synthesis.

@@ -1,17 +1,18 @@
 import { ref, watch, computed, reactive, onMounted } from 'vue'
 import type { CallSession, CallTurn, TurnEvaluation } from '../types/call-session'
 
-import { mockCallSession as mockCall2 } from '../mocks/call-mock-2'
-import { mockCallSession as mockCall3 } from '../mocks/call-mock-3'
-
 export function useSessions() {
   const isDemoMode = ref(false)
   const LOCAL_STORAGE_KEY = 'qc-dashboard-overrides'
   const baseUrl = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.BASE_URL : '/'
 
+  const mockModules = import.meta.glob('../mocks/*.ts', { eager: true })
+
   const availableSessions = reactive<CallSession[]>(
-    [mockCall2, mockCall3].map((rawSession: CallSession) => {
+    Object.values(mockModules).map((module: any) => {
+      const rawSession = module.mockCallSession as CallSession
       const session = JSON.parse(JSON.stringify(rawSession)) as CallSession
+      
       session.turns = session.turns.map(turn => {
         const cleanPath = turn.audio_url.startsWith('/') ? turn.audio_url.slice(1) : turn.audio_url
         return {

@@ -26,8 +26,8 @@ if (!hasAudio || !hasMocks) {
     fs.mkdirSync(audioDir, { recursive: true });
     fs.mkdirSync(mocksDir, { recursive: true });
 
-    execSync(`"${pythonPath}" generate_audio_and_mocks.py`, { stdio: 'inherit' });
-    execSync(`"${pythonPath}" maintain_assets.py`, { stdio: 'inherit' });
+    execSync(`"${pythonPath}" dev_scripts/generate_audio_and_mocks.py`, { stdio: 'inherit', cwd: __dirname });
+    execSync(`"${pythonPath}" dev_scripts/maintain_assets.py`, { stdio: 'inherit', cwd: __dirname });
     
     console.log('✅ [Setup] Asset pipeline complete.');
   } catch (e) {
