@@ -1,66 +1,20 @@
 <script setup lang="ts">
-import { ref, watch, computed, provide, reactive, onMounted } from 'vue'
+import { provide } from 'vue'
 import DashboardRow from './components/dashboard/DashboardRow.vue'
-import type { CallSession, CallTurn, TurnEvaluation } from './types/call-session'
+import { useSessions } from './composables/use-sessions.ts'
 
-const mockModules = import.meta.glob('./mocks/*.ts', { eager: true })
-
-const availableSessions = reactive<CallSession[]>(
-  Object.values(mockModules).map((module: any) => module.mockCallSession as CallSession)
-)
-const selectedCallId = ref(availableSessions[0]?.call_id || '')
-
-const currentSession = computed<CallSession>(() => {
-  return availableSessions.find(s => s.call_id === selectedCallId.value) || availableSessions[0]
-})
-
-const activeTurnId = ref<number | null>(currentSession.value?.turns[0]?.turn_id || null)
-const activeAudioTrackId = ref<string | null>(null)
-
-onMounted(async () => {
-  try {
-    const response = await fetch('http://localhost:3000/api/sessions')
-    if (!response.ok) return
-    
-    const overrides = await response.json() as Record<string, Record<number, TurnEvaluation>>
-    
-    availableSessions.forEach(session => {
-      const sessionOverrides = overrides[session.call_id]
-      if (sessionOverrides) {
-        session.turns.forEach(turn => {
-          if (sessionOverrides[turn.turn_id]) {
-            turn.evaluation = sessionOverrides[turn.turn_id]
-          }
-        })
-      }
-    })
-  } catch (e) {
-    console.error(e)
-  }
-})
-
-const saveToServer = async () => {
-  const overrides: Record<string, Record<number, TurnEvaluation>> = {}
-  availableSessions.forEach(session => {
-    session.turns.forEach(turn => {
-      if (turn.evaluation && turn.evaluation.is_correct !== null) {
-        if (!overrides[session.call_id]) {
-          overrides[session.call_id] = {}
-        }
-        overrides[session.call_id][turn.turn_id] = turn.evaluation
-      }
-    })
-  })
-  try {
-    await fetch('http://localhost:3000/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(overrides, null, 2) 
-    })
-  } catch (e) {
-    console.error(e)
-  }
-}
+const {
+  isDemoMode,
+  availableSessions,
+  selectedCallId,
+  currentSession,
+  activeTurnId,
+  activeAudioTrackId,
+  saveToServer,
+  selectTurn,
+  setCorrect,
+  setError
+} = useSessions()
 
 provide('activeTrackId', activeAudioTrackId)
 
@@ -74,45 +28,20 @@ provide('playNext', (currentTurnId: number) => {
     activeAudioTrackId.value = `${currentSession.value.call_id}_turn_${nextTurn.turn_id}`
   }
 })
-
-watch(selectedCallId, () => {
-  activeAudioTrackId.value = null
-  if (currentSession.value?.turns.length > 0) {
-    activeTurnId.value = currentSession.value.turns[0].turn_id
-  } else {
-    activeTurnId.value = null
-  }
-})
-
-const selectTurn = (id: number): void => {
-  activeTurnId.value = id
-}
-
-const setCorrect = (turn: CallTurn): void => {
-  if (turn.evaluation?.is_correct === true) {
-    turn.evaluation = { is_correct: null }
-  } else {
-    turn.evaluation = { is_correct: true }
-  }
-}
-
-const setError = (turn: CallTurn): void => {
-  if (turn.evaluation?.is_correct === false) {
-    turn.evaluation = { is_correct: null }
-  } else {
-    turn.evaluation = { 
-      is_correct: false, 
-      scores: { speech_recognition: 100, response_correctness: 100, politeness: 100 },
-      error_description: ''
-    }
-  }
-}
 </script>
 
 <template>
   <div class="app-container">
     <header class="app-header">
-      <h1 class="header-title">AI Voice Assistant QC</h1>
+      <div class="header-logo-section">
+        <h1 class="header-title">AI Voice Assistant QC</h1>
+        <span v-if="isDemoMode" class="badge badge-demo" title="Server offline. Data persists in browser localStorage.">
+          🟠 Demo Mode
+        </span>
+        <span v-else class="badge badge-online" title="Connected to Express server. Data persists in database.">
+          🟢 Connected
+        </span>
+      </div>
       
       <div class="header-selector">
         <label for="call-select" class="selector-label">Session:</label>

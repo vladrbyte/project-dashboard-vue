@@ -361,3 +361,31 @@ body,
 .evaluation-pending {
   color: #94a3b8;
 }
+
+.header-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+.badge-demo {
+  background-color: #7c2d12;
+  color: #ffedd5;
+  border: 1px solid #ea580c;
+}
+
+.badge-online {
+  background-color: #064e3b;
+  color: #d1fae5;
+  border: 1px solid #059669;
+}
