@@ -58,9 +58,7 @@ onMounted(async () => {
   })
 
   wavesurfer.on('interaction', () => { if (wavesurfer) { wavesurfer.play() } })
-
   wavesurfer.on('audioprocess', (time) => { currentTimeMs.value = time * 1000 })
-
   wavesurfer.on('seeking', (time) => { currentTimeMs.value = time * 1000 })
 
 })
