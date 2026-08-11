@@ -17,7 +17,7 @@ app.get('/api/sessions', (req, res) => {
   if (fs.existsSync(FILE_PATH)) {
     return res.json(JSON.parse(fs.readFileSync(FILE_PATH, 'utf-8')));
   }
-  res.json([]);
+  res.json({});
 });
 
 app.post('/api/sessions', (req, res) => {
